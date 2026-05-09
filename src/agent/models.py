@@ -5,7 +5,9 @@ class ElementAttribute(BaseModel):
   """Strictly defined key-value pair for HTML attributes."""
   model_config = ConfigDict(extra="forbid") 
   name: str = Field(description="The attribute name (e.g., 'href')")
-  value: str = Field(description="The attribute value (e.g., 'https://site.com')")
+  value: str = Field(
+    description="The attribute value pattern. Use placeholders like '{value}' for dynamic data."
+  )
 
 class Element(BaseModel):
   model_config = ConfigDict(populate_by_name=True, extra="forbid")
@@ -26,9 +28,14 @@ class Element(BaseModel):
     default_factory=list,
     description="List of other attributes. Required for strict mode instead of a dict.",
   )
+  description: Optional[str] = Field(
+    default=None,
+    description="A brief explanation of what this element represents (e.g., 'Book Title Container')."
+  )
 
 class Elements(BaseModel):
   model_config = ConfigDict(extra="forbid")
   elements: List[Element] = Field(
-    description="A list of unique element templates. Only include one example per data type (e.g., one example for a price, one for a title).",
+    description="A list of unique element templates representing the blueprint for extraction. Avoid duplicate patterns.",
   )
+

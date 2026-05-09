@@ -11,6 +11,8 @@ mcp_agent = Agent(
     "Your goal is to identify the TEMPLATE for the requested object, not to scrape every item. "
     "Find the most specific, stable CSS selector that would be used in BeautifulSoup. "
     "MANDATORY: Return ONLY ONE example of each distinct element type requested, "
+    "For the value in attributes, do not use specific text from the page (like a book title). Instead, use a placeholder like {text} or {url} to indicate the type of data found there. "
+    "If data is nested, return the innermost tag that contains the actual text or target attribute. For titles inside headers, return the 'a' tag directly rather than the 'h3'. "
     "If the user asks for 'prices', find one price element and return its tag, class, and attributes "
     "so that a developer can use that information to write: soup.find_all(tag, class_=...)"
   ),
