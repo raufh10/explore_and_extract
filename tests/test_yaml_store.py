@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from agent.models import Element
-from agent.yaml_store import load_elements, save_element
+from agent.models import Element, Elements
+from agent.yaml_store import load_elements, save_elements
 
 
 def test_load_elements_returns_empty_dict_for_missing_file(tmp_path: Path) -> None:
@@ -19,34 +19,50 @@ def test_load_elements_rejects_non_mapping_yaml(tmp_path: Path) -> None:
     load_elements(path)
 
 
-def test_save_element_appends_and_overwrites_by_name(tmp_path: Path) -> None:
+def test_save_elements_appends_and_overwrites_by_name(tmp_path: Path) -> None:
   path = tmp_path / "elements.yaml"
 
-  save_element(
+  save_elements(
     path,
     "title",
-    Element(tag="h1", css_class="product-title"),
+    Elements(elements=[Element(tag="h1", css_class="product-title")]),
   )
-  save_element(
+  save_elements(
     path,
     "price",
-    Element(tag="span", css_class="price", other_attrs={"data-role": "price"}),
+    Elements(elements=[
+      Element(tag="span", css_class="price", other_attrs={"data-role": "price"}),
+      Element(tag="p", css_class="price_color"),
+    ]),
   )
-  save_element(
+  save_elements(
     path,
     "title",
-    Element(tag="h2", id="replacement-title"),
+    Elements(elements=[Element(tag="h2", id="replacement-title")]),
   )
 
   assert yaml.safe_load(path.read_text(encoding="utf-8")) == {
     "title": {
-      "tag": "h2",
-      "id": "replacement-title",
-      "other_attrs": {},
+      "elements": [
+        {
+          "tag": "h2",
+          "id": "replacement-title",
+          "other_attrs": {},
+        }
+      ],
     },
     "price": {
-      "tag": "span",
-      "class": "price",
-      "other_attrs": {"data-role": "price"},
+      "elements": [
+        {
+          "tag": "span",
+          "class": "price",
+          "other_attrs": {"data-role": "price"},
+        },
+        {
+          "tag": "p",
+          "class": "price_color",
+          "other_attrs": {},
+        },
+      ],
     },
   }

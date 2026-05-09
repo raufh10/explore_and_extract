@@ -7,8 +7,8 @@ from agents import InputGuardrailTripwireTriggered, Runner
 from dotenv import load_dotenv
 
 from agent.core import main_agent
-from agent.models import Element
-from agent.yaml_store import save_element
+from agent.models import Elements
+from agent.yaml_store import save_elements
 
 
 DEFAULT_OUTPUT_PATH = Path("elements.yaml")
@@ -41,13 +41,17 @@ async def run_cli(output_path: Path) -> None:
     print("Request blocked: prompt must relate to browser automation or website exploration.")
     return
 
-  element = result.final_output
-  if not isinstance(element, Element):
-    element = Element.model_validate(element)
+  elements_output = result.final_output
+  if elements_output is None:
+    print("Agent did not return any elements.")
+    return
 
-  print("\nElement:")
+  if not isinstance(elements_output, Elements):
+    elements_output = Elements.model_validate(elements_output)
+
+  print("\nElements:")
   print(yaml.safe_dump(
-    element.model_dump(by_alias=True, exclude_none=True),
+    elements_output.model_dump(by_alias=True, exclude_none=True),
     sort_keys=False,
     allow_unicode=True,
   ).strip())
@@ -56,7 +60,7 @@ async def run_cli(output_path: Path) -> None:
     print("Element was not saved.")
     return
 
-  save_element(output_path, name, element)
+  save_elements(output_path, name, elements_output)
   print(f"Saved '{name}' to {output_path}.")
 
 

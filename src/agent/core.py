@@ -1,7 +1,7 @@
-from agents import Agent
+from agents import Agent, AgentOutputSchema
 
 from agent.guardrails import browser_automation_guardrail
-from agent.models import Element
+from agent.models import Elements
 from agent.tools import playwright_mcp
 
 
@@ -23,7 +23,7 @@ main_agent = Agent(
     "Orchestrate browser-based website exploration to identify the specific "
     "HTML element that best represents the object the user wants to extract. "
     "Ask the Playwright MCP browser agent to inspect the website when needed. "
-    "Return one structured Element with the tag, class, id, and any other "
+    "Return structured Elements with the tag, class, id, and any other "
     "stable attributes that can guide a later BeautifulSoup scraper."
   ),
   tools=[
@@ -36,5 +36,5 @@ main_agent = Agent(
     )
   ],
   input_guardrails=[browser_automation_guardrail],
-  output_type=Element,
+  output_type=AgentOutputSchema(Elements, strict_json_schema=False),
 )

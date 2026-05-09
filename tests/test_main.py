@@ -6,7 +6,7 @@ import pytest
 import yaml
 
 from agent import main
-from agent.models import Element
+from agent.models import Element, Elements
 
 
 def test_prompt_accept_accepts_yes(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -38,10 +38,10 @@ def test_run_cli_saves_accepted_agent_output(
 ) -> None:
   output_path = tmp_path / "elements.yaml"
   answers = iter(["product_title", "Find the product title on https://example.com", "y"])
-  element = Element(tag="h1", css_class="product-title")
+  elements = Elements(elements=[Element(tag="h1", css_class="product-title")])
 
   async def fake_run(*_args: object, **_kwargs: object) -> SimpleNamespace:
-    return SimpleNamespace(final_output=element)
+    return SimpleNamespace(final_output=elements)
 
   monkeypatch.setattr("builtins.input", lambda _: next(answers))
   monkeypatch.setattr(main.Runner, "run", fake_run)
@@ -50,9 +50,13 @@ def test_run_cli_saves_accepted_agent_output(
 
   assert yaml.safe_load(output_path.read_text(encoding="utf-8")) == {
     "product_title": {
-      "tag": "h1",
-      "class": "product-title",
-      "other_attrs": {},
+      "elements": [
+        {
+          "tag": "h1",
+          "class": "product-title",
+          "other_attrs": {},
+        }
+      ],
     }
   }
 
@@ -65,7 +69,9 @@ def test_run_cli_skips_save_when_user_rejects(
   answers = iter(["product_title", "Find the product title on https://example.com", "n"])
 
   async def fake_run(*_args: object, **_kwargs: object) -> SimpleNamespace:
-    return SimpleNamespace(final_output=Element(tag="h1", css_class="product-title"))
+    return SimpleNamespace(
+      final_output=Elements(elements=[Element(tag="h1", css_class="product-title")])
+    )
 
   monkeypatch.setattr("builtins.input", lambda _: next(answers))
   monkeypatch.setattr(main.Runner, "run", fake_run)

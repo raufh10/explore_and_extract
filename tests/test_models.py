@@ -1,4 +1,4 @@
-from agent.models import Element
+from agent.models import Element, Elements
 
 
 def test_element_accepts_class_alias() -> None:
@@ -25,3 +25,17 @@ def test_element_uses_defaults() -> None:
   assert element.css_class is None
   assert element.id is None
   assert element.other_attrs == {}
+
+
+def test_elements_wraps_flat_element_list() -> None:
+  elements = Elements(elements=[
+    Element(tag="p", css_class="price_color"),
+    Element(tag="span", css_class="availability"),
+  ])
+
+  assert elements.model_dump(by_alias=True, exclude_none=True) == {
+    "elements": [
+      {"tag": "p", "class": "price_color", "other_attrs": {}},
+      {"tag": "span", "class": "availability", "other_attrs": {}},
+    ]
+  }

@@ -3,7 +3,7 @@ from typing import Any
 
 import yaml
 
-from agent.models import Element
+from agent.models import Elements
 
 
 def load_elements(path: Path) -> dict[str, Any]:
@@ -19,9 +19,9 @@ def load_elements(path: Path) -> dict[str, Any]:
   return data
 
 
-def save_element(path: Path, name: str, element: Element) -> None:
+def save_elements(path: Path, name: str, elements_output: Elements) -> None:
   elements = load_elements(path)
-  elements[name] = element.model_dump(by_alias=True, exclude_none=True)
+  elements[name] = elements_output.model_dump(by_alias=True, exclude_none=True)
 
   with path.open("w", encoding="utf-8") as file:
     yaml.safe_dump(

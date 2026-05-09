@@ -26,3 +26,10 @@ class Element(BaseModel):
     default_factory=dict,
     description="Other attributes like 'href' or 'data-id'.",
   )
+
+
+class Elements(BaseModel):
+  elements: list[Element] = Field(
+    default_factory=list,
+    description="Flat list of captured elements; elements must not contain child elements.",
+  )
