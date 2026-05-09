@@ -4,24 +4,19 @@ from agent.guardrails import browser_automation_guardrail
 from agent.models import Elements
 from agent.tools import playwright_mcp
 
-
 mcp_agent = Agent(
   name="playwright_mcp_browser_agent",
-  handoff_description=(
-    "Use this agent for Playwright browser automation, website exploration, "
-    "and HTML element identification."
-  ),
   instructions=(
-    "Use the Playwright MCP tool to explore websites, inspect pages, and "
-    "identify HTML elements relevant to the user's target object. Prefer "
-    "stable selectors and attributes that will be useful for a BeautifulSoup "
-    "scraper later. Return structured Elements with a flat list of matching "
-    "elements; do not include child elements or recursive nesting."
+    "Use playwright_mcp to visit the site. "
+    "Your goal is to identify the TEMPLATE for the requested object, not to scrape every item. "
+    "Find the most specific, stable CSS selector that would be used in BeautifulSoup. "
+    "MANDATORY: Return ONLY ONE example of each distinct element type requested, "
+    "If the user asks for 'prices', find one price element and return its tag, class, and attributes "
+    "so that a developer can use that information to write: soup.find_all(tag, class_=...)"
   ),
   tools=[playwright_mcp],
   output_type=AgentOutputSchema(Elements, strict_json_schema=True),
 )
-
 
 main_agent = Agent(
   name="web_element_extraction_orchestrator",

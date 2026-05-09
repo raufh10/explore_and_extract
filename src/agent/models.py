@@ -30,6 +30,5 @@ class Element(BaseModel):
 class Elements(BaseModel):
   model_config = ConfigDict(extra="forbid")
   elements: List[Element] = Field(
-    description="Flat list of captured elements.",
+    description="A list of unique element templates. Only include one example per data type (e.g., one example for a price, one for a title).",
   )
-
