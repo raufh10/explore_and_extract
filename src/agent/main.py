@@ -37,6 +37,7 @@ async def run_cli(output_path: Path) -> None:
 
   try:
     result = await Runner.run(main_agent, user_prompt)
+    print(result)
   except InputGuardrailTripwireTriggered:
     print("Request blocked: prompt must relate to browser automation or website exploration.")
     return

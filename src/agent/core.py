@@ -6,7 +6,7 @@ from agent.tools import playwright_mcp
 
 
 mcp_agent = Agent(
-  name="Playwright MCP browser agent",
+  name="playwright_mcp_browser_agent",
   handoff_description=(
     "Use this agent for Playwright browser automation, website exploration, "
     "and HTML element identification."
@@ -24,7 +24,7 @@ mcp_agent = Agent(
 
 
 main_agent = Agent(
-  name="Web element extraction orchestrator",
+  name="web_element_extraction_orchestrator",
   instructions=(
     "Orchestrate browser-based website exploration to identify the specific "
     "HTML elements that best represent the object the user wants to extract. "
