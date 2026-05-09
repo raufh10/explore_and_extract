@@ -37,7 +37,19 @@ async def run_cli(output_path: Path) -> None:
 
   try:
     result = await Runner.run(main_agent, user_prompt)
-    print(result)
+
+    while result.interruptions:
+      state = result.to_state()
+      state.approve(result.interruptions[0])
+      result = await Runner.run(main_agent, state)
+
+    for item in result.new_items:
+      print(f"DEBUG - Item Type: {type(item).__name__}")
+      if hasattr(item, 'text'):
+        print(f"DEBUG - Text: {item.text}")
+      if hasattr(item, 'tool_calls'):
+        print(f"DEBUG - Tool Calls: {item.tool_calls}")
+
   except InputGuardrailTripwireTriggered:
     print("Request blocked: prompt must relate to browser automation or website exploration.")
     return

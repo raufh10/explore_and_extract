@@ -19,7 +19,7 @@ mcp_agent = Agent(
     "elements; do not include child elements or recursive nesting."
   ),
   tools=[playwright_mcp],
-  output_type=AgentOutputSchema(Elements, strict_json_schema=False),
+  output_type=AgentOutputSchema(Elements, strict_json_schema=True),
 )
 
 
