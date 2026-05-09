@@ -1,5 +1,0 @@
-price:
-  elements:
-  - tag: p
-    class: price_color
-    attributes: []
