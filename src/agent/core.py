@@ -1,8 +1,22 @@
 from agents import Agent, AgentOutputSchema
 
 from agent.guardrails import browser_automation_guardrail
-from agent.models import Elements
+from agent.models import Elements, APIBlueprint
 from agent.tools import playwright_mcp
+
+network_specialist = Agent(
+  name="network_discovery_agent",
+  instructions=(
+    "Use playwright_mcp to navigate to the target site. "
+    "Monitor all network traffic, specifically 'fetch' and 'xhr' resource types. "
+    "Identify which requests are responsible for the primary data on the page. "
+    "For each relevant request, capture the URL, Headers, and any Post Data (payload). "
+    "GOAL: Provide a blueprint that a developer could copy into Postman to "
+    "get the data without using a browser."
+  ),
+  tools=[playwright_mcp],
+  output_type=AgentOutputSchema(APIBlueprint, strict_json_schema=True),
+)
 
 mcp_agent = Agent(
   name="playwright_mcp_browser_agent",
@@ -23,11 +37,15 @@ mcp_agent = Agent(
 main_agent = Agent(
   name="web_element_extraction_orchestrator",
   instructions=(
-    "Orchestrate browser-based website exploration to identify the specific "
-    "HTML elements that best represent the object the user wants to extract. "
-    "Handoff website exploration and browser automation requests to the "
-    "Playwright MCP browser agent."
+    "You are the central triage agent for web exploration. Analyze the user's "
+    "request and execute an immediate handoff to the appropriate specialist:\n"
+    "1. Hand off to 'playwright_mcp_browser_agent' if the user needs HTML tags, "
+    "CSS selectors, or visual UI patterns for scrapers like BeautifulSoup.\n"
+    "2. Hand off to 'network_discovery_agent' if the user needs to reverse engineer "
+    "APIs, inspect network traffic, capture headers, or monitor background requests "
+    "for tools like Postman."
   ),
-  handoffs=[mcp_agent],
+  handoffs=[mcp_agent, network_specialist],
   input_guardrails=[browser_automation_guardrail],
 )
+

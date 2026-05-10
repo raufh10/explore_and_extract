@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel, ConfigDict, Field
 
 class ElementAttribute(BaseModel):
@@ -37,5 +37,30 @@ class Elements(BaseModel):
   model_config = ConfigDict(extra="forbid")
   elements: List[Element] = Field(
     description="A list of unique element templates representing the blueprint for extraction. Avoid duplicate patterns.",
+  )
+
+class NetworkRequest(BaseModel):
+  model_config = ConfigDict(extra="forbid")
+  url: str = Field(description="The full target URL.")
+  method: str = Field(description="HTTP Method (GET, POST, etc.)")
+  headers: Dict[str, str] = Field(
+    default_factory=dict, 
+    description="Full request headers for Postman replication."
+  )
+  post_data: Optional[str] = Field(
+    default=None, 
+    description="The raw payload sent to the server (JSON or form data)."
+  )
+  resource_type: str = Field(description="Type: fetch, xhr, or document.")
+
+class APIBlueprint(BaseModel):
+  """Collection of discovered API endpoints."""
+  model_config = ConfigDict(extra="forbid")
+  endpoints: List[NetworkRequest] = Field(
+    default_factory=list,
+    description="List of discovered API requests that carry data."
+  )
+  summary: str = Field(
+    description="Brief technical summary of the API's behavior."
   )
 

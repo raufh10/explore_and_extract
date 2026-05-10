@@ -1,12 +1,13 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import yaml
+from pydantic import BaseModel
 
-from agent.models import Elements
+from agent.models import Elements, APIBlueprint
 
-
-def load_elements(path: Path) -> dict[str, Any]:
+def load_patterns(path: Path) -> dict[str, Any]:
+  """Loads the existing pattern repository from YAML."""
   if not path.exists():
     return {}
 
@@ -18,14 +19,20 @@ def load_elements(path: Path) -> dict[str, Any]:
 
   return data
 
-
-def save_elements(path: Path, name: str, elements_output: Elements) -> None:
-  elements = load_elements(path)
-  elements[name] = elements_output.model_dump(by_alias=True, exclude_none=True)
+def save_pattern(path: Path, name: str, output_data: Union[Elements, APIBlueprint]) -> None:
+  """
+  Saves a named pattern (either UI Elements or API Blueprints) 
+  into the central YAML store.
+  """
+  store = load_patterns(path)
+  
+  # model_dump ensures we get the clean dict representation 
+  # by_alias=True handles the 'class' -> 'css_class' mapping
+  store[name] = output_data.model_dump(by_alias=True, exclude_none=True)
 
   with path.open("w", encoding="utf-8") as file:
     yaml.safe_dump(
-      elements,
+      store,
       file,
       sort_keys=False,
       allow_unicode=True,

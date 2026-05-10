@@ -7,10 +7,10 @@ from agents import InputGuardrailTripwireTriggered, Runner
 from dotenv import load_dotenv
 
 from agent.core import main_agent
-from agent.models import Elements
-from agent.yaml_store import save_elements
+from agent.models import Elements, APIBlueprint
+from agent.yaml_store import save_pattern
 
-DEFAULT_OUTPUT_PATH = Path("elements.yaml")
+DEFAULT_OUTPUT_PATH = Path("patterns.yaml")
 
 def prompt_required(label: str) -> str:
   while True:
@@ -22,24 +22,28 @@ def prompt_required(label: str) -> str:
     print("Value is required.")
 
 def prompt_accept() -> bool:
-  value = input("Accept and save this element? [y/N]: ").strip().lower()
+  value = input("Accept and save this pattern? [y/N]: ").strip().lower()
   return value in {"y", "yes"}
 
 async def run_cli(output_path: Path) -> None:
   load_dotenv()
-  print("--- Element Explorer (Type 'q' or 'exit' to quit) ---")
+  print("--- Web Pattern Explorer (Type 'q' or 'exit' to quit) ---")
 
   while True:
-    print("\nDescribe the website object you want to extract.")
-    
-    name = prompt_required("Element name: ")
+    print("\nDescribe the website object or API you want to analyze.")
+
+    name = prompt_required("Pattern name: ")
     if name == "EXIT_SIGNAL": break
-    
+
     user_prompt = prompt_required("Prompt: ")
     if user_prompt == "EXIT_SIGNAL": break
 
     try:
-      result = await Runner.run(main_agent, user_prompt)
+      result = await Runner.run(
+        main_agent, 
+        user_prompt, 
+        tool_approval_callback=lambda x: "approve"
+      )
 
       while result.interruptions:
         state = result.to_state()
@@ -53,37 +57,45 @@ async def run_cli(output_path: Path) -> None:
       print(f"An error occurred: {e}")
       continue
 
-    elements_output = result.final_output
-    if elements_output is None:
-      print("Agent did not return any elements.")
+    output_data = result.final_output
+    if output_data is None:
+      print("Agent did not return any data.")
       continue
 
-    if not isinstance(elements_output, Elements):
-      elements_output = Elements.model_validate(elements_output)
+    if not isinstance(output_data, (Elements, APIBlueprint)):
+      try:
+        # Attempt to figure out which model it is based on the keys
+        if isinstance(output_data, dict) and "endpoints" in output_data:
+          output_data = APIBlueprint.model_validate(output_data)
+        else:
+          output_data = Elements.model_validate(output_data)
+      except Exception:
+        print("Error: Received data that does not match known pattern schemas.")
+        continue
 
-    print("\nElements:")
+    print("\nExtracted Pattern:")
     formatted_yaml = yaml.safe_dump(
-      elements_output.model_dump(by_alias=True, exclude_none=True),
+      output_data.model_dump(by_alias=True, exclude_none=True),
       sort_keys=False,
       allow_unicode=True,
     ).strip()
     print(formatted_yaml)
 
     if prompt_accept():
-      save_elements(output_path, name, elements_output)
+      save_pattern(output_path, name, output_data)
       print(f"Saved '{name}' to {output_path}.")
     else:
-      print("Element was not saved.")
+      print("Pattern was not saved.")
 
   print("Exiting...")
 
 def parse_args() -> argparse.Namespace:
   parser = argparse.ArgumentParser(
-    description="Explore a website with Playwright MCP and save an Element YAML entry.",
+    description="Explore websites and APIs using Playwright MCP and save YAML blueprints.",
   )
   parser.add_argument(
     "-o", "--output", type=Path, default=DEFAULT_OUTPUT_PATH,
-    help="YAML file to write accepted elements into.",
+    help="YAML file to write accepted patterns into.",
   )
   return parser.parse_args()
 
