@@ -41,8 +41,7 @@ async def run_cli(output_path: Path) -> None:
     try:
       result = await Runner.run(
         main_agent, 
-        user_prompt, 
-        tool_approval_callback=lambda x: "approve"
+        user_prompt
       )
 
       while result.interruptions:
@@ -64,7 +63,6 @@ async def run_cli(output_path: Path) -> None:
 
     if not isinstance(output_data, (Elements, APIBlueprint)):
       try:
-        # Attempt to figure out which model it is based on the keys
         if isinstance(output_data, dict) and "endpoints" in output_data:
           output_data = APIBlueprint.model_validate(output_data)
         else:

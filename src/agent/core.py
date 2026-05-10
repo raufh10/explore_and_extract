@@ -7,15 +7,31 @@ from agent.tools import playwright_mcp
 network_specialist = Agent(
   name="network_discovery_agent",
   instructions=(
-    "Use playwright_mcp to navigate to the target site. "
-    "Monitor all network traffic, specifically 'fetch' and 'xhr' resource types. "
-    "Identify which requests are responsible for the primary data on the page. "
-    "For each relevant request, capture the URL, Headers, and any Post Data (payload). "
-    "GOAL: Provide a blueprint that a developer could copy into Postman to "
-    "get the data without using a browser."
+    "You are a network protocol analyst. You have access to 'browser_run_code_unsafe'.\n"
+    "To capture API data without session errors, write a script that:\n"
+    "1. Starts a listener for 'request' events to capture headers and methods.\n"
+    "2. Navigates to the target URL and waits for 'networkidle'.\n"
+    "3. Filters the captured requests for 'fetch' or 'xhr' types.\n"
+    "4. Returns an array of objects containing 'url', 'method', 'headers', and 'postData'.\n"
+    "\nUSE THIS CODE PATTERN:\n"
+    "async (page) => {\n"
+    "  const reqs = [];\n"
+    "  page.on('request', r => {\n"
+    "    if (['fetch', 'xhr'].includes(r.resourceType())) {\n"
+    "      reqs.push({ \n"
+    "        url: r.url(), \n"
+    "        method: r.method(), \n"
+    "        headers: r.headers(), \n"
+    "        postData: r.postData() \n"
+    "      });\n"
+    "    }\n"
+    "  });\n"
+    "  await page.goto(URL, { waitUntil: 'networkidle' });\n"
+    "  return reqs;\n"
+    "}"
   ),
   tools=[playwright_mcp],
-  output_type=AgentOutputSchema(APIBlueprint, strict_json_schema=True),
+  output_type=AgentOutputSchema(APIBlueprint, strict_json_schema=False),
 )
 
 mcp_agent = Agent(

@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 class ElementAttribute(BaseModel):
@@ -39,17 +39,23 @@ class Elements(BaseModel):
     description="A list of unique element templates representing the blueprint for extraction. Avoid duplicate patterns.",
   )
 
+class Header(BaseModel):
+  """Strictly defined header key-value pair."""
+  model_config = ConfigDict(extra="forbid")
+  name: str = Field(description="Header key (e.g., 'Authorization')")
+  value: str = Field(description="Header value or pattern")
+
 class NetworkRequest(BaseModel):
   model_config = ConfigDict(extra="forbid")
   url: str = Field(description="The full target URL.")
   method: str = Field(description="HTTP Method (GET, POST, etc.)")
-  headers: Dict[str, str] = Field(
-    default_factory=dict, 
-    description="Full request headers for Postman replication."
+  headers: List[Header] = Field(
+    default_factory=list, 
+    description="List of request headers."
   )
   post_data: Optional[str] = Field(
     default=None, 
-    description="The raw payload sent to the server (JSON or form data)."
+    description="The raw payload sent to the server."
   )
   resource_type: str = Field(description="Type: fetch, xhr, or document.")
 
