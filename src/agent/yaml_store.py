@@ -25,9 +25,6 @@ def save_pattern(path: Path, name: str, output_data: Union[Elements, APIBlueprin
   into the central YAML store.
   """
   store = load_patterns(path)
-  
-  # model_dump ensures we get the clean dict representation 
-  # by_alias=True handles the 'class' -> 'css_class' mapping
   store[name] = output_data.model_dump(by_alias=True, exclude_none=True)
 
   with path.open("w", encoding="utf-8") as file:

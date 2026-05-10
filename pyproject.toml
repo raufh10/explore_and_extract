@@ -1,7 +1,7 @@
 [project]
 name = "explore-and-extract"
 version = "0.1.0"
-description = "Add your description here"
+description = "An AI-orchestrated web exploration tool for identifying CSS selectors and reverse-engineering background API endpoints using Playwright MCP."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

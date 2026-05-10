@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from pydantic import BaseModel, Field
 
 from agents import (
@@ -11,7 +10,6 @@ from agents import (
   input_guardrail,
 )
 
-
 class BrowserAutomationOutput(BaseModel):
   is_browser_automation_request: bool
   reasoning: Annotated[
@@ -21,7 +19,6 @@ class BrowserAutomationOutput(BaseModel):
       max_length=120,
     ),
   ]
-
 
 browser_automation_guardrail_agent = Agent(
   name="Browser automation check",
@@ -34,7 +31,6 @@ browser_automation_guardrail_agent = Agent(
   ),
   output_type=BrowserAutomationOutput,
 )
-
 
 @input_guardrail
 async def browser_automation_guardrail(

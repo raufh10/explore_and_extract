@@ -1,7 +1,5 @@
 import os
-
 from agents import HostedMCPTool
-
 
 playwright_mcp = HostedMCPTool(
   tool_config={
