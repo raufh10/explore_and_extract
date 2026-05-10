@@ -29,4 +29,4 @@ __pycache__/
 *.egg-info/
 
 # CLI output file
-elements.yaml
+patterns.yaml
