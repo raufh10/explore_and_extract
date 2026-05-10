@@ -39,7 +39,7 @@ This tool triages requests into two primary workflows:
    ```
  3. **Requirements:**
    This project requires a running **Playwright MCP** server. Use the following deployment for the browser automation backend:
-   👉 raufh10/playwright-mcp
+   👉[raufh10/playwright-mcp](https://github.com/raufh10/playwright-mcp)
 ### 💻 Usage Examples
 Run the CLI tool using uv:
 ```bash
